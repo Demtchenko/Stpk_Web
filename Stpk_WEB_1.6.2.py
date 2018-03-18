@@ -18,21 +18,22 @@ def clnt(s, n):
     print(n, 'Закрыли соединение')
 
 def main(cnt, ipa, prt):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind((ipa, prt))
-    s.listen(cnt)
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((ipa, prt))
+        s.listen(cnt)
 
-    xctr = ThreadPoolExecutor(cnt)
-    fclnts = list()
-    loop = asyncio.get_event_loop()
-    loop.set_debug(True)
-    for i in range(cnt):
+        xctr = ThreadPoolExecutor(cnt)
+        fclnts = list()
+        loop = asyncio.get_event_loop()
+        loop.set_debug(True)
+        for i in range(cnt):
         #        fclnts.append(asyncio.ensure_future(loop.run_in_executor(xctr, functools.partial(clnt, s, i))))
         # для совместимости с версией 3.4.3 на Степике заменим
         fclnts.append(asyncio.async(loop.run_in_executor(xctr, functools.partial(clnt, s, i))))
-    loop.run_until_complete(asyncio.gather(*fclnts))
-    loop.close()
-    s.close()
+        loop.run_until_complete(asyncio.gather(*fclnts))
+        loop.close()
+        s.shutdown(socket.SHUT_RDWR)
+        s.close()
 
 
 if __name__ == '__main__':
