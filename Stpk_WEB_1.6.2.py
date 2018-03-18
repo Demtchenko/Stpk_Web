@@ -1,4 +1,7 @@
-import asyncio, socket, functools
+#!/usr/bin/env python3
+import asyncio
+import functools
+import socket
 from concurrent.futures import ThreadPoolExecutor
 
 
