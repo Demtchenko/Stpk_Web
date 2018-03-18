@@ -6,19 +6,20 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 def clnt(s, n):
-    try:
-        conn, addr = s.accept()
-    except OSError:
-        return
-    print('Клиент', n, addr)
     data = b''
     while data.decode('utf-8').strip() != 'close':
+        try:
+            conn, addr = s.accept()
+        except OSError:
+            print('Сервер', n, 'закрылся по таймауту')
+            return
+        print('Клиент', n, addr)
         data = conn.recv(1024)
         conn.send(data)
         print('Клнт', n, data.decode('utf-8').strip())
-    conn.shutdown(socket.SHUT_RDWR)
-    conn.close
-    print(n, 'Закрыли соединение')
+        conn.shutdown(socket.SHUT_RDWR)
+        conn.close
+        print(n, 'Закрыли соединение')
 
 
 def main(cnt, ipa, prt, tmot):
@@ -42,4 +43,4 @@ def main(cnt, ipa, prt, tmot):
 
 
 if __name__ == '__main__':
-    main(10, '0.0.0.0', 2222, 15)
+    main(9, '0.0.0.0', 2222, 3)
